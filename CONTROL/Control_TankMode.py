@@ -2,6 +2,9 @@ import pygame
 import socket
 from time import sleep
 
+import udp_settings
+
+
 # Initialize Pygame and joystick
 pygame.init()
 pygame.joystick.init()
@@ -10,8 +13,10 @@ joystick.init()
 print(f"Initialized joystick: {joystick.get_name()}")
 
 # UDP setup
-udp_ip = "192.168.0.167"
-udp_port = 4210
+udp_ip = udp_settings.ip
+udp_port = udp_settings.port
+
+
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 

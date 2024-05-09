@@ -1,0 +1,5 @@
+build
+dist
+trashbin
+*.spec
+__pycache__
