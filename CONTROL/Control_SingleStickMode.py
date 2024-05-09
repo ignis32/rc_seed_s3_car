@@ -1,6 +1,7 @@
 import pygame
 import socket
 from time import sleep
+import math
 
 # Initialize Pygame and joystick
 pygame.init()
@@ -12,9 +13,6 @@ print(f"Initialized joystick: {joystick.get_name()}")
 # UDP setup
 udp_ip = "192.168.0.167"
 udp_port = 4210
-
-
-
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -67,14 +65,21 @@ while running:
             print("Replay stopped.")
 
     # Read joystick axes and apply dead zone
-    left_stick_raw = -joystick.get_axis(1)   # Vertical axis of left stick
-    right_stick_raw = joystick.get_axis(3)  # Vertical axis of right stick
-    left_stick = round(apply_dead_zone(left_stick_raw), 2)
-    right_stick = round(apply_dead_zone(right_stick_raw), 2)
+    y_stick_raw = joystick.get_axis(2)   # Vertical axis of left stick (inverted)
+    x_stick_raw = -joystick.get_axis(3)  # Vertical axis of right stick
     
+    y_stick = round(apply_dead_zone(y_stick_raw), 2)
+    x_stick = round(apply_dead_zone(x_stick_raw), 2)
+
+
     # Convert to integer for speed settings
-    left_speed = int(left_stick * 255)
-    right_speed = int(right_stick * 255)
+    dy = int(y_stick * 255)
+    dx = int(x_stick * 255)
+    print(f"{dy } {dx}")
+    left_speed = max(-255, min(255, dy + dx))
+    right_speed = max(-255, min(255, dy - dx))
+
+
 
     # Manage recording and replaying
     if replaying:
@@ -91,7 +96,7 @@ while running:
             recorded_movements.append((left_speed, right_speed))
             
 
-    print(f"{left_stick} : {right_stick}    {left_speed} : {right_speed}    {len(recorded_movements)} ")
+   # print(f"{left_stick} : {right_stick}    {left_speed} : {right_speed}    {len(recorded_movements)} ")
 
     sleep(0.01)  # Adjust for smoother or faster response
 
