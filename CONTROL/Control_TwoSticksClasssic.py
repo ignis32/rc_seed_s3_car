@@ -2,7 +2,7 @@ import pygame
 import socket
 from time import sleep
 import math
-
+ 
 import udp_settings
 
 # Initialize Pygame and joystick
@@ -33,6 +33,9 @@ def apply_dead_zone(value):
     if -dead_zone < value < dead_zone:
         return 0
     return value
+
+
+
 
 # Recording and playback mechanisms
 recording = False
@@ -72,7 +75,7 @@ while running:
             print("Replay stopped.")
 
     # Read joystick axes and apply dead zone
-    y_stick_raw = joystick.get_axis(2)   # horizontal axis of right stick (inverted)
+    y_stick_raw = joystick.get_axis(0)   # horizontal axis of left stick  
     x_stick_raw = -joystick.get_axis(3)  # Vertical axis of right stick
     
     y_stick = round(apply_dead_zone(y_stick_raw), 2)
@@ -83,6 +86,7 @@ while running:
     dy = int(y_stick * 255)
     dx = int(x_stick * 255)
     print(f"{dy } {dx}")
+
     left_speed = max(-255, min(255, dy + dx))
     right_speed = max(-255, min(255, dy - dx))
 

@@ -27,17 +27,7 @@ class JoystickEmulator(tk.Tk):
 
         self.draw_axes()
 
-        # Buttons
-        self.record_button = ttk.Button(self, text='Start Recording', command=self.toggle_recording)
-        self.record_button.grid(column=0, row=1, padx=10, pady=10)
-        self.replay_button = ttk.Button(self, text='Start Replay', command=self.toggle_replay)
-        self.replay_button.grid(column=1, row=1, padx=10, pady=10)
-
-        # Recording data
-        self.recording = False
-        self.replaying = False
-        self.recorded_movements = []
-        self.playback_index = 0
+ 
 
         # Motor speeds
         self.last_left_speed = 0
@@ -51,7 +41,7 @@ class JoystickEmulator(tk.Tk):
         self.sock.sendto(message.encode(), (self.udp_ip, self.udp_port))
         self.last_left_speed = left_speed
         self.last_right_speed = right_speed
-        print(f"Left: {left_speed}, Right: {right_speed}, Recorded Movements: {len(self.recorded_movements)}")
+     #   print(f"Left: {left_speed}, Right: {right_speed} ")
 
     def periodic_udp_update(self):
         self.send_udp_message(self.last_left_speed, self.last_right_speed)
@@ -69,45 +59,14 @@ class JoystickEmulator(tk.Tk):
     def update_motor_speeds(self, x, y):
         dy = x - self.center_x
         dx = self.center_y - y  # Positive dy should mean forward
+        print (f"DX {dx} DY{dy}")
         left_speed = max(-255, min(255, dy + dx))
         right_speed = max(-255, min(255, dy - dx))
 
-        if self.replaying:
-            if self.playback_index < len(self.recorded_movements):
-                left_speed, right_speed = self.recorded_movements[self.playback_index]
-                self.playback_index += 1
-            else:
-                self.replaying = False
-                self.replay_button.config(text="Start Replay")
-                print("Replay completed.")
+ 
 
         self.send_udp_message(left_speed, right_speed)
-        if self.recording:
-            self.recorded_movements.append((left_speed, right_speed))
-
-       
-
-    def toggle_recording(self):
-        if not self.recording:
-            self.recording = True
-            self.record_button.config(text="Stop Recording")
-            self.recorded_movements = []  # Reset the list at start
-            print("Recording started.")
-        else:
-            self.recording = False
-            self.record_button.config(text="Start Recording")
-            print("Recording stopped.")
-
-    def toggle_replay(self):
-        if not self.replaying:
-            self.replaying = True
-            self.replay_button.config(text="Stop Replay")
-            self.playback_index = 0  # Reset the index for a new replay
-            print("Replay started.")
-        else:
-            self.replaying = False
-            self.replay_button.config(text="Start Replay")
-            print("Replay stopped.")
+      
 
     def draw_axes(self):
         self.canvas.create_line(0, self.center_y, 600, self.center_y, fill="black")
