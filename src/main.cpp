@@ -13,11 +13,19 @@ char incomingPacket[255];         // buffer for incoming packets
 unsigned long lastPacketTime = 0; // Time when the last packet was received
 
 // Motor control pins
-const int leftMotorForward = D0;
-const int leftMotorBackward = D1;
-const int rightMotorForward = D2;
-const int rightMotorBackward = D3;
+#ifdef TTGO_T18
+const int leftMotorForward = 25;
+const int leftMotorBackward = 33;
+const int rightMotorForward = 27;
+const int rightMotorBackward = 26;
+#endif
 
+#ifdef SEEED_XIAO_ESP32S3
+const int leftMotorForward = D4;  // Update these pins according to your configuration for SEEED_XIAO_ESP32S3
+const int leftMotorBackward = D5;
+const int rightMotorForward = D6;
+const int rightMotorBackward = D7;
+#endif
 /*
 WiFiUDP debugUdp;
 const char* debugIp = "192.168.0.218"; // IP of your computer
@@ -59,6 +67,8 @@ void setup()
 
 void controlMotor(int pinForward, int pinBackward, int speed)
 {
+ 
+
   if (speed > 0)
   {
     analogWrite(pinForward, speed);
@@ -82,7 +92,7 @@ void panic()
   controlMotor(rightMotorForward, rightMotorBackward, 0);
 
 
-  Serial.println("Panic: Motors stopped due to no UDP packet received for 1 second.");
+  Serial.print("."); // Motors stopped due to no UDP packet received for 1 second.");
 }
 
 void handleMotorControl(char *packet)
@@ -111,6 +121,7 @@ void loop()
     unsigned long currentMillis = millis();
     if (currentMillis - lastPacketTime >= 500)
         {          // More than 0.5 second since last packet
+          lastPacketTime=currentMillis;  // to evade endless panic messages spam that  affects ping mesurement on
           panic(); // Stop the motors
           delay(10); // dark magic here. If there is no delay, panic stop does not work, looks like analogwrite does not keep up.
        //    debugPrint("ZERO UDP PACKAGES TIMEOUT\n");
@@ -124,7 +135,8 @@ void loop()
     if (len > 0)
     {
       incomingPacket[len] = 0; // Null-terminate the string
-      // debugPrint("Received Packet: " + String(incomingPacket)); // Send incoming packet to debug output
+      //debugPrint("Received Packet: " + String(incomingPacket)); // Send incoming packet to debug output
+    //Serial.print("Received Packet: " + String(incomingPacket)); // Send incoming packet to debug output
   
       handleMotorControl(incomingPacket);
       lastPacketTime = millis(); // Update the time of the last received packet
