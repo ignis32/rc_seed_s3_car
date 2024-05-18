@@ -11,7 +11,7 @@ pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
 joystick.init()
 print(f"Initialized joystick: {joystick.get_name()}")
-v  
+ 
 # UDP setup
 udp_ip = udp_settings.ip
 udp_port = udp_settings.port

@@ -3,4 +3,4 @@ dist
 trashbin
 *.spec
 __pycache__
-udp_settings
+udp_settings.py
