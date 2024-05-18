@@ -80,8 +80,12 @@ while running:
             print("Replay stopped.")
 
     # Read joystick axes and apply dead zone
+    # 0, 1 - left stick (x, y) axes
+    # 2, 3 - right stick (x, y) axes
+    # 4 - left trigger values from -1 to 1
+    # 5 - right trigger values from -1 to 1
     y_stick_raw = joystick.get_axis(0)   # horizontal axis of left stick  
-    x_stick_raw = -(((joystick.get_axis(4) + 1) / 2) - ((joystick.get_axis(5) + 1) / 2))# Vertical axis of right stick
+    x_stick_raw = -(((joystick.get_axis(4) + 1) / 2) - ((joystick.get_axis(5) + 1) / 2)) # z-axis of two triggers
     
     y_stick = round(apply_dead_zone(y_stick_raw), 2)
     x_stick = round(apply_dead_zone(x_stick_raw), 2)
