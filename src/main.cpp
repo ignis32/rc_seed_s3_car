@@ -13,6 +13,8 @@ char incomingPacket[255];         // buffer for incoming packets
 unsigned long lastPacketTime = 0; // Time when the last packet was received
 
 // Motor control pins
+
+ 
 #ifdef TTGO_T18
 const int leftMotorForward = 25;
 const int leftMotorBackward = 33;
@@ -21,12 +23,19 @@ const int rightMotorBackward = 26;
 #endif
 
 #ifdef SEEED_XIAO_ESP32S3
-const int leftMotorForward = D4;  // Update these pins according to your configuration for SEEED_XIAO_ESP32S3
-const int leftMotorBackward = D5;
-const int rightMotorForward = D6;
-const int rightMotorBackward = D7;
+const int leftMotorForward = D0;
+const int leftMotorBackward = D1;
+const int rightMotorForward = D2;
+const int rightMotorBackward = D3;
 #endif
-/*
+
+
+
+//#define UDPDEBUG
+
+ 
+#ifdef  UDPDEBUG
+ 
 WiFiUDP debugUdp;
 const char* debugIp = "192.168.0.218"; // IP of your computer
 const unsigned int debugPort = 4211;  // Port on which to receive debug messages
@@ -36,7 +45,8 @@ void debugPrint(String message) {
   debugUdp.write((const uint8_t*)message.c_str(), message.length());
   debugUdp.endPacket();
 }
-*/
+ 
+ #endif
 void setupWiFi()
 {
   WiFi.mode(WIFI_STA);
@@ -68,11 +78,15 @@ void setup()
 void controlMotor(int pinForward, int pinBackward, int speed)
 {
  
+ 
 
   if (speed > 0)
   {
-    analogWrite(pinForward, speed);
     analogWrite(pinBackward, 0);
+    analogWrite(pinForward, speed);
+    
+    
+    
   }
   else if (speed < 0)
   {
@@ -99,6 +113,9 @@ void handleMotorControl(char *packet)
 {
   int leftSpeed, rightSpeed;
   sscanf(packet, "%d %d", &leftSpeed, &rightSpeed); // Parse speeds for both motors
+  #ifdef  UDPDEBUG
+  debugPrint(String(leftSpeed) + " "  +  String(rightSpeed));
+  #endif
   controlMotor(leftMotorForward, leftMotorBackward, leftSpeed);
   controlMotor(rightMotorForward, rightMotorBackward, rightSpeed);
 
@@ -124,7 +141,10 @@ void loop()
           lastPacketTime=currentMillis;  // to evade endless panic messages spam that  affects ping mesurement on
           panic(); // Stop the motors
           delay(10); // dark magic here. If there is no delay, panic stop does not work, looks like analogwrite does not keep up.
-       //    debugPrint("ZERO UDP PACKAGES TIMEOUT\n");
+        
+          #ifdef  UDPDEBUG
+          debugPrint("ZERO UDP PACKAGES TIMEOUT\n");
+          #endif
         }
   }
 
