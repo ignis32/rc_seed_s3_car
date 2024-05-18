@@ -2,7 +2,7 @@ import pygame
 import socket
 from time import sleep
 import math
- 
+import numpy as np
 import udp_settings
 
 # Initialize Pygame and joystick
@@ -11,7 +11,7 @@ pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
 joystick.init()
 print(f"Initialized joystick: {joystick.get_name()}")
-
+v  
 # UDP setup
 udp_ip = udp_settings.ip
 udp_port = udp_settings.port
@@ -27,13 +27,18 @@ def send_udp_message(message):
     sock.sendto(message.encode(), (udp_ip, udp_port))
 
 # Configurable dead zone
-dead_zone = 0.1  # Adjust dead zone sensitivity as needed
+dead_zone = 0.05  # Adjust dead zone sensitivity as needed
 
 def apply_dead_zone(value):
     if -dead_zone < value < dead_zone:
         return 0
     return value
 
+def inverted_power_response_signed(A_stick, power=0.5):
+    sign = np.sign(A_stick)  # Capture the sign of A_stick
+    A = abs(A_stick) * 255  # Work with the absolute value of A_stick
+    dA = (A / 255) ** power * 255  # Apply the power function
+    return int(sign * dA)  # Restore the original sign
 
 
 
@@ -80,15 +85,21 @@ while running:
     
     y_stick = round(apply_dead_zone(y_stick_raw), 2)
     x_stick = round(apply_dead_zone(x_stick_raw), 2)
+ 
+    # dy = int(y_stick * 255 ) 
+    #dx = int(x_stick * 255 ) 
 
-
-    # Convert to integer for speed settings
-    dy = int(y_stick * 255)
-    dx = int(x_stick * 255)
-    print(f"{dy } {dx}")
+    dy = inverted_power_response_signed(y_stick)
+    dx = inverted_power_response_signed(x_stick)
+    
 
     left_speed = max(-255, min(255, dy + dx))
     right_speed = max(-255, min(255, dy - dx))
+
+    #  -255 +255   | -255 +255
+
+
+    print(f"{dy }:{dx}        {left_speed}:{right_speed}")
 
     # Manage recording and replaying
     if replaying:
