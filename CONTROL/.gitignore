@@ -1,6 +1,0 @@
-build
-dist
-trashbin
-*.spec
-__pycache__
-udp_settings.py

@@ -1,0 +1,10 @@
+control_port = 4210 #udp
+
+
+control_ip = "192.168.0.167"     # local net
+cam_url =    "http://192.168.0.102:80"     # local net
+
+ 
+
+# cam_url =    "http://192.168.8.102:80"     # mission control
+# control_ip  = "192.168.8.167"    # mission control
